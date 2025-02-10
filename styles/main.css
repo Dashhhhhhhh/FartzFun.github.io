@@ -47,36 +47,62 @@ main {
 
 .hero {
     text-align: center;
-    padding: 3rem 0;
-    perspective: 1000px;
+    padding: 5rem 0;
+    perspective: 1200px;
+    background: #000;
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .spinning-text {
-    font-size: 3.5rem;
-    font-weight: bold;
+    font-size: 4.5rem;
+    font-weight: 900;
+    font-family: 'Arial Black', sans-serif;
     text-transform: uppercase;
-    animation: spin 8s infinite linear, rainbow 4s infinite linear;
+    animation: float 6s ease-in-out infinite, spin 8s infinite linear, rainbow 4s infinite linear;
     transform-style: preserve-3d;
     position: relative;
     display: inline-block;
-    text-shadow: 
-        0 0 5px rgba(255,255,255,0.5),
-        0 0 10px rgba(255,255,255,0.3);
+}
+
+.spinning-text::before,
+.spinning-text::after {
+    content: 'WELCOME TO FARTZ.FUN';
+    position: absolute;
+    top: 0;
+    left: 0;
+    animation: rainbow 4s infinite linear reverse;
+    opacity: 0.7;
+}
+
+.spinning-text::before {
+    transform: translateZ(-10px);
+    filter: blur(5px);
+}
+
+.spinning-text::after {
+    transform: translateZ(10px);
+    filter: blur(2px);
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotateX(20deg) rotateY(0); }
+    50% { transform: translateY(-20px) rotateX(25deg) rotateY(180deg); }
 }
 
 @keyframes spin {
-    0% { transform: rotateY(0deg) rotateX(10deg); }
-    100% { transform: rotateY(360deg) rotateX(10deg); }
+    0% { transform: rotate3d(1, 1, 1, 0deg); }
+    100% { transform: rotate3d(1, 1, 1, 360deg); }
 }
 
 @keyframes rainbow {
-    0% { color: #ff0000; }
-    16% { color: #ff00ff; }
-    32% { color: #0000ff; }
-    48% { color: #00ffff; }
-    64% { color: #00ff00; }
-    80% { color: #ffff00; }
-    100% { color: #ff0000; }
+    0% { color: #ff0000; text-shadow: 0 0 20px #ff0000; }
+    25% { color: #00ff00; text-shadow: 0 0 20px #00ff00; }
+    50% { color: #00ffff; text-shadow: 0 0 20px #00ffff; }
+    75% { color: #ff00ff; text-shadow: 0 0 20px #ff00ff; }
+    100% { color: #ff0000; text-shadow: 0 0 20px #ff0000; }
 }
 
 .content {
