@@ -9,7 +9,7 @@ body {
     padding: 0;
     background: #111;
     color: #fff;
-    font-family: 'Arial', sans-serif;
+    font-family: Arial, sans-serif;
     min-height: 100vh;
     overflow: hidden;
 }
@@ -27,44 +27,37 @@ body {
 }
 
 .text-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2rem;
+    perspective: 1000px;
+    text-align: center;
 }
 
 .spinning-text {
-    margin-bottom: 1rem;
     font-size: 5rem;
     font-weight: 900;
     text-transform: uppercase;
     position: relative;
     transform-style: preserve-3d;
     animation: spin 8s infinite linear;
-    transform-origin: center center;
-    text-align: center;
-    width: 100%;
+    margin-bottom: 2rem;
 }
 
 .spinning-text::before,
 .spinning-text::after {
     content: 'WELCOME TO FARTZ.FUN';
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) translateZ(-10px);
-    background: transparent;
+    left: 0;
     width: 100%;
     text-align: center;
 }
 
 .spinning-text::before {
+    transform: translateZ(-10px);
     color: #ff00ff;
     text-shadow: 0 0 20px #ff00ff;
 }
 
 .spinning-text::after {
-    transform: translate(-50%, -50%) translateZ(10px);
+    transform: translateZ(10px);
     color: #00ffff;
     text-shadow: 0 0 20px #00ffff;
 }
@@ -79,8 +72,8 @@ body {
 }
 
 @keyframes spin {
-    0% { transform: rotate3d(0, 1, 0, 0deg); }
-    100% { transform: rotate3d(0, 1, 0, 360deg); }
+    from { transform: rotateY(0); }
+    to { transform: rotateY(360deg); }
 }
 
 @keyframes pulse {
