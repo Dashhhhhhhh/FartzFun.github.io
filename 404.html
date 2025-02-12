@@ -20,6 +20,14 @@
             animation: colorShift 4s infinite linear;
         }
     </style>
+    <script>
+        const path = window.location.pathname;
+        if (path === '/join') {
+            window.location.href = '/join/join.html';
+        } else {
+            // Keep existing 404 content
+        }
+    </script>
 </head>
 <body>
     <div class="error-content">
