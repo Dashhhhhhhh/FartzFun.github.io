@@ -21,11 +21,11 @@
         }
     </style>
     <script>
-        const path = window.location.pathname;
-        if (path === '/join') {
-            window.location.href = '/join/join.html';
-        } else {
-            // Keep existing 404 content
+        // Remove .html from urls
+        let path = window.location.pathname;
+        if (path.endsWith('.html')) {
+            path = path.slice(0, -5);
+            window.location.replace(path);
         }
     </script>
 </head>
