@@ -1,3 +1,12 @@
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+    overflow: hidden;
+    font-family: 'Righteous', cursive;
+}
+
 .join-content {
     height: 100vh;
     display: flex;
@@ -31,7 +40,6 @@
 
 .site-logo:hover {
     transform: scale(1.1);
-    filter: brightness(1.2);
 }
 
 #emoji-canvas {
@@ -51,6 +59,7 @@
     z-index: 1;
     line-height: 1;
     transition: transform 0.016s linear; /* Smooth rotation at ~60fps */
+    cursor: grab;
 }
 
 .controls {
@@ -60,8 +69,6 @@
     z-index: 1000;
 }
 
-/* Remove .velocity-control styles */
-
 .clear-button {
     background: none;
     border: none;
@@ -69,6 +76,7 @@
     cursor: pointer;
     padding: 5px;
     transition: transform 0.2s;
+    color: white;
 }
 
 .clear-button:hover {
@@ -78,17 +86,19 @@
 .toilet-collector {
     position: fixed;
     right: 20px;
-    bottom: -20px; /* Moved closer to bottom */
+    bottom: 0;          /* Changed from -20px to 0 */
     display: flex;
     flex-direction: column;
     align-items: center;
     z-index: 2;
+    width: 200px;
 }
 
 .toilet {
     font-size: 200px;
-    transform: translateY(0) scaleX(1);
     user-select: none;
+    line-height: 1;
+    transform: translateY(0px); /* Changed from 2px to 0px to move up more */
 }
 
 .counter {
@@ -96,10 +106,11 @@
     font-size: 32px;
     font-weight: bold;
     text-shadow: 0 0 10px rgba(0,0,0,0.5);
-    margin-bottom: 20px;
     position: absolute;
-    top: -60px;
+    top: -40px;
     transition: transform 0.2s ease-out;
+    width: 100%;
+    text-align: center;
 }
 
 /* Remove float animation if it exists */
