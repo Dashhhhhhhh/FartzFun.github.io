@@ -33,3 +33,73 @@
     transform: scale(1.1);
     filter: brightness(1.2);
 }
+
+#emoji-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: all;
+}
+
+.emoji {
+    position: fixed;
+    user-select: none;
+    pointer-events: none;
+    z-index: 1;
+    line-height: 1;
+    transition: transform 0.016s linear; /* Smooth rotation at ~60fps */
+}
+
+.controls {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+/* Remove .velocity-control styles */
+
+.clear-button {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 5px;
+    transition: transform 0.2s;
+}
+
+.clear-button:hover {
+    transform: scale(1.1);
+}
+
+.toilet-collector {
+    position: fixed;
+    right: 20px;
+    bottom: -20px; /* Moved closer to bottom */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 2;
+}
+
+.toilet {
+    font-size: 200px;
+    transform: translateY(0) scaleX(1);
+    user-select: none;
+}
+
+.counter {
+    color: white;
+    font-size: 32px;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(0,0,0,0.5);
+    margin-bottom: 20px;
+    position: absolute;
+    top: -60px;
+    transition: transform 0.2s ease-out;
+}
+
+/* Remove float animation if it exists */
