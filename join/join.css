@@ -1,0 +1,35 @@
+.join-content {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+}
+
+.join-title {
+    font-size: 3rem;
+    margin-bottom: 2rem;
+    animation: colorShift 4s infinite linear;
+}
+
+.site-logo {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    color: #fff;
+    text-decoration: none;
+    font-family: 'Righteous', cursive;
+    font-size: 1.8rem;
+    padding: 10px;
+    transition: all 0.3s ease;
+    animation: colorShift 4s infinite linear;
+    text-shadow: 0 0 10px currentColor;
+    z-index: 1000;
+}
+
+.site-logo:hover {
+    transform: scale(1.1);
+    filter: brightness(1.2);
+}

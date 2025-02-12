@@ -69,13 +69,13 @@ body {
 
 .fart-counter {
     position: fixed;
-    bottom: 20px;
+    bottom: 10px;
     left: 0;
     right: 0;
     text-align: center;
     font-family: 'Courier New', monospace;
     background: rgba(0, 0, 0, 0.9);
-    padding: 15px;
+    padding: 10px;
     border-top: 2px solid #fff;
     box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
 }
@@ -194,7 +194,7 @@ body {
 
 @media screen and (max-width: 768px) {
     .spinning-text {
-        font-size: 2.5rem;
+        font-size: 2rem;
         margin-bottom: 0;
     }
 
@@ -205,7 +205,9 @@ body {
     }
 
     .text-container {
-        margin-top: 10vh;
+        margin-top: 20vh;
+        transform-style: preserve-3d;
+        width: 90%;
     }
 
     .fart-counter {
@@ -216,22 +218,40 @@ body {
     }
 
     .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 10px;
-        padding: 0 10px;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 5px;
+        padding: 0 5px;
+    }
+    
+    .stat-box {
+        padding: 5px;
+    }
+
+    .stat-label {
+        font-size: 0.6rem;
     }
     
     .stat-value {
-        font-size: 1.2rem;
+        font-size: 0.9rem;
+    }
+    
+    .stat-unit {
+        font-size: 0.5rem;
+    }
+
+    .counter-text {
+        font-size: 0.8rem;
+        margin-bottom: 5px;
     }
 
     .join-button {
         top: auto;
-        bottom: 100px;
+        bottom: 140px;
         right: 50%;
         transform: translateX(50%);
-        font-size: 1rem;
-        padding: 12px 24px;
+        font-size: 0.9rem;
+        padding: 10px 20px;
+        z-index: 1000;
     }
     
     .join-button:hover {
@@ -241,12 +261,27 @@ body {
 
 @media screen and (max-width: 480px) {
     .spinning-text {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
         margin-bottom: 1rem;
     }
 
     .text-container {
         width: 90%;
         margin: 0 auto;
+    }
+
+    .join-button {
+        bottom: 120px;
+        font-size: 0.8rem;
+        padding: 8px 16px;
+    }
+
+    .fart-counter {
+        padding: 5px;
+    }
+
+    .stats-grid {
+        max-width: 100%;
+        margin: 5px auto;
     }
 }
