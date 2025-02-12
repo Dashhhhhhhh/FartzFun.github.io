@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.querySelector('.text-container');
+    const spinningText = document.querySelector('.spinning-text');
     let isDragging = false;
     let currentX;
     let currentY;
@@ -8,7 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let xOffset = 0;
     let yOffset = 0;
 
-    // Keep spinning animation while dragging
     function setTranslate(xPos, yPos) {
         xOffset = xPos;
         yOffset = yPos;
@@ -24,7 +24,9 @@ document.addEventListener('DOMContentLoaded', () => {
             initialY = e.clientY - yOffset;
         }
 
-        if (e.target === container) {
+        const clickTarget = e.target;
+        // Allow dragging when clicking the container or any child element
+        if (container.contains(clickTarget) || container === clickTarget) {
             isDragging = true;
         }
     }
@@ -51,13 +53,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Mouse events
+    // Mouse events - attach to both container and spinning text
     container.addEventListener('mousedown', dragStart);
+    spinningText.addEventListener('mousedown', dragStart);
     document.addEventListener('mousemove', drag);
     document.addEventListener('mouseup', dragEnd);
 
-    // Touch events
+    // Touch events - attach to both container and spinning text
     container.addEventListener('touchstart', dragStart);
+    spinningText.addEventListener('touchstart', dragStart);
     document.addEventListener('touchmove', drag, { passive: false });
     document.addEventListener('touchend', dragEnd);
 });
