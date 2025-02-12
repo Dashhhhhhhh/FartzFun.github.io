@@ -1,2 +1,3 @@
 permalink: pretty
+baseurl: "/FartzFun.github.io"
 include: [".well-known"]
