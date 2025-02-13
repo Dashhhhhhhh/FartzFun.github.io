@@ -60,3 +60,21 @@ body {
     50% { transform: scale(1.5); }
     100% { transform: scale(1); }
 }
+
+#back-button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    padding: 10px 20px;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 16px;
+    z-index: 1000;
+    transition: background-color 0.3s ease;
+}
+
+#back-button:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
