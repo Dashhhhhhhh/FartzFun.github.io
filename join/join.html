@@ -1,26 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Join - Fartz.fun</title>
-    <link rel="stylesheet" href="/FartzFun.github.io/style.css">
-    <link rel="stylesheet" href="/FartzFun.github.io/join/join.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet">
+    <title>Join Us!</title>
+    <link rel="stylesheet" type="text/css" href="join.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 </head>
 <body>
-    <a href="/FartzFun.github.io/" class="site-logo">Fartz.Fun</a>
-    <div class="controls">
-        <button id="clear-button" class="clear-button">🗑️</button>
+    <h1>Join the Fartz Fun!</h1>
+    <canvas id="poopCanvas"></canvas>
+    <div id="toilet-container">
+        <div id="toilet-counter">0</div>
+        <div id="toilet">🚽</div>
     </div>
-    <div class="toilet-collector">
-        <div class="counter">0</div>
-        <div class="toilet">🚽</div>
-    </div>
-    <script src="/FartzFun.github.io/media/fart-sound.js"></script>
-    <script src="/FartzFun.github.io/join/join.js"></script>
+    <script src="join.js"></script>
+    <script src="../drag-handler.js"></script> <!-- Include drag-handler.js -->
 </body>
 </html>

@@ -1,116 +1,62 @@
 body {
     margin: 0;
     padding: 0;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
     overflow: hidden;
-    font-family: 'Righteous', cursive;
+    background: rgb(0, 0, 0);
+    color: white; /* Ensure text is visible on dark background */
 }
 
-.join-content {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 20px;
-}
-
-.join-title {
-    font-size: 3rem;
-    margin-bottom: 2rem;
-    animation: colorShift 4s infinite linear;
-}
-
-.site-logo {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    color: #fff;
-    text-decoration: none;
-    font-family: 'Righteous', cursive;
-    font-size: 1.8rem;
-    padding: 10px;
-    transition: all 0.3s ease;
-    animation: colorShift 4s infinite linear;
-    text-shadow: 0 0 10px currentColor;
-    z-index: 1000;
-}
-
-.site-logo:hover {
-    transform: scale(1.1);
-}
-
-#emoji-canvas {
+#poopCanvas {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 0;
-    pointer-events: all;
+    pointer-events: auto; /* Make sure it doesn't interfere with other elements */
+    z-index: 1; /* Place it behind other content */
 }
 
-.emoji {
+#toilet-container {
     position: fixed;
+    bottom: -10px;  /* Adjust to align with floor */
+    right: -50px;   /* Adjust to align with right wall */
+    z-index: 2;
+    text-align: center;
+    padding-bottom: 10px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
     user-select: none;
     pointer-events: none;
-    z-index: 1;
-    line-height: 1;
-    transition: transform 0.016s linear; /* Smooth rotation at ~60fps */
-    cursor: grab;
 }
 
-.controls {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-}
-
-.clear-button {
-    background: none;
-    border: none;
-    font-size: 2rem;
-    cursor: pointer;
-    padding: 5px;
-    transition: transform 0.2s;
-    color: white;
-}
-
-.clear-button:hover {
-    transform: scale(1.1);
-}
-
-.toilet-collector {
-    position: fixed;
-    right: 20px;
-    bottom: 0;          /* Changed from -20px to 0 */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    z-index: 2;
-    width: 200px;
-}
-
-.toilet {
-    font-size: 200px;
+#toilet {
+    font-size: 240px;  /* Double the size */
+    cursor: default;
     user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    pointer-events: none;
     line-height: 1;
-    transform: translateY(0px); /* Changed from 2px to 0px to move up more */
 }
 
-.counter {
-    color: white;
-    font-size: 32px;
+#toilet-counter {
+    font-size: 60px;
     font-weight: bold;
-    text-shadow: 0 0 10px rgba(0,0,0,0.5);
-    position: absolute;
-    top: -40px;
-    transition: transform 0.2s ease-out;
-    width: 100%;
-    text-align: center;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 10px;
+    margin-bottom: 5px;
+    transition: transform 0.15s ease-out;
 }
 
-/* Remove float animation if it exists */
+.counter-bump {
+    animation: counterPop 0.3s ease-out;
+}
+
+@keyframes counterPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.5); }
+    100% { transform: scale(1); }
+}

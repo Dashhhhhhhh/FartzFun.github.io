@@ -1,198 +1,239 @@
-const Engine = Matter.Engine,
+// module aliases
+var Engine = Matter.Engine,
     Render = Matter.Render,
     World = Matter.World,
     Bodies = Matter.Bodies,
+    Runner = Matter.Runner,
     Mouse = Matter.Mouse,
     MouseConstraint = Matter.MouseConstraint;
 
-const engine = Engine.create();
-const world = engine.world;
+// create an engine
+var engine = Engine.create();
 
-// Create walls (invisible)
-const walls = [
-    Bodies.rectangle(window.innerWidth / 2, window.innerHeight + 50, window.innerWidth, 100, { isStatic: true }),
-    Bodies.rectangle(-50, window.innerHeight / 2, 100, window.innerHeight, { isStatic: true }),
-    Bodies.rectangle(window.innerWidth + 50, window.innerHeight / 2, 100, window.innerHeight, { isStatic: true })
-];
-World.add(world, walls);
+// create a renderer with proper scaling
+var render = Render.create({
+    element: document.body,
+    canvas: document.getElementById('poopCanvas'),
+    engine: engine,
+    options: {
+        width: window.innerWidth,
+        height: window.innerHeight,
+        wireframes: false,
+        background: 'rgb(0, 0, 0)',
+        pixelRatio: window.devicePixelRatio // Add pixel ratio support
+    }
+});
 
-// Create mouse interaction
-const mouse = Mouse.create(document.body);
-const mouseConstraint = MouseConstraint.create(engine, {
+// ensure canvas has correct dimensions
+render.canvas.width = window.innerWidth * window.devicePixelRatio;
+render.canvas.height = window.innerHeight * window.devicePixelRatio;
+render.canvas.style.width = window.innerWidth + 'px';
+render.canvas.style.height = window.innerHeight + 'px';
+
+// ensure canvas receives mouse events for dragging
+render.canvas.style.pointerEvents = 'auto';
+
+// function to create ground and walls
+function createBounds() {
+    var ground = Bodies.rectangle(window.innerWidth / 2, window.innerHeight, window.innerWidth, 2, { 
+        isStatic: true,
+        friction: 1,
+        restitution: 0.2,
+        render: { visible: false },
+        slop: 0
+    });
+    var leftWall = Bodies.rectangle(0, window.innerHeight / 2, 2, window.innerHeight, { 
+        isStatic: true,
+        friction: 1,
+        render: { visible: false },
+        slop: 0
+    });
+    var rightWall = Bodies.rectangle(window.innerWidth, window.innerHeight / 2, 2, window.innerHeight, { 
+        isStatic: true,
+        friction: 1,
+        render: { visible: false },
+        slop: 0
+    });
+    return [ground, leftWall, rightWall];
+}
+
+// add all of the bodies to the world
+World.add(engine.world, createBounds());
+
+// add mouse control with proper scaling
+var mouse = Mouse.create(render.canvas);
+mouse.pixelRatio = window.devicePixelRatio; // Set correct pixel ratio for mouse
+var mouseConstraint = MouseConstraint.create(engine, {
     mouse: mouse,
     constraint: {
-        stiffness: 0.2,
+        stiffness: 0.3,
+        damping: 0.1,
+        angularStiffness: 0.1,
         render: { visible: false }
     }
 });
-World.add(world, mouseConstraint);
+World.add(engine.world, mouseConstraint);
 
-const clearButton = document.getElementById('clear-button');
+// Track last few mouse positions for better velocity calculation
+let mousePositions = [];
+const MAX_POSITIONS = 5;
 
-// Update progression variables
-const progressionConfig = {
-    baseSpawnRate: 1500,  // Changed from 3000 to 1500 (faster initial spawn)
-    minSpawnRate: 200,    // Changed from 300 to 200 (faster maximum speed)
-    baseSize: 35,         // Changed from 25 to 35
-    maxSize: 50,
-    sizeGrowth: 0.15,    // Increased from 0.1 to 0.15 (faster size growth)
-    spawnRateReduction: 30, // Increased from 20 to 30 (faster spawn rate progression)
-    randomVariance: 0.3
-};
+render.canvas.addEventListener('mousemove', (e) => {
+    mousePositions.push({
+        x: e.clientX,
+        y: e.clientY,
+        time: Date.now()
+    });
+    if (mousePositions.length > MAX_POSITIONS) {
+        mousePositions.shift();
+    }
+});
 
-let currentSpawnRate = progressionConfig.baseSpawnRate;
-let currentBaseSize = progressionConfig.baseSize;
-let spawnInterval;
+// Add throw velocity on release with improved calculation
+Matter.Events.on(mouseConstraint, 'enddrag', function(event) {
+    if (event.body && mousePositions.length >= 2) {
+        const lastPos = mousePositions[mousePositions.length - 1];
+        const prevPos = mousePositions[0];
+        const timeDiff = lastPos.time - prevPos.time;
+        
+        if (timeDiff < 100) { // Only apply velocity for quick movements
+            const velocityMultiplier = 1; // Increased multiplier for more noticeable throws
+            const velocity = {
+                x: ((lastPos.x - prevPos.x) / timeDiff) * velocityMultiplier,
+                y: ((lastPos.y - prevPos.y) / timeDiff) * velocityMultiplier
+            };
+            Matter.Body.setVelocity(event.body, velocity);
+        }
+    }
+    mousePositions = []; // Clear positions array after throw
+});
 
-// Add toilet collector variables
-const toiletElement = document.querySelector('.toilet');
-const counterElement = document.querySelector('.counter');
-let collectedCount = 0;
+// keep the mouse in sync with rendering
+render.mouse = mouse;
 
-// Update toilet collision sensor
-const toiletBounds = {
-    x: window.innerWidth - 220,
-    y: window.innerHeight - 150, // Adjusted to match new position
-    width: 200,
-    height: 60, // Reduced height to only detect top collisions
-    topOnly: true
-};
+// update bounds on window resize with proper scaling
+window.addEventListener('resize', function() {
+    // Store existing bodies except boundaries
+    const bodies = Matter.Composite.allBodies(engine.world).filter(body => !body.isStatic);
+    
+    // Update canvas dimensions
+    render.canvas.width = window.innerWidth * window.devicePixelRatio;
+    render.canvas.height = window.innerHeight * window.devicePixelRatio;
+    render.canvas.style.width = window.innerWidth + 'px';
+    render.canvas.style.height = window.innerHeight + 'px';
+    
+    render.options.width = window.innerWidth;
+    render.options.height = window.innerHeight;
+    
+    // Update mouse scaling
+    mouse.pixelRatio = window.devicePixelRatio;
+    
+    // Remove old boundaries only
+    const boundaries = Matter.Composite.allBodies(engine.world).filter(body => body.isStatic);
+    boundaries.forEach(boundary => World.remove(engine.world, boundary));
+    
+    // Add new boundaries
+    World.add(engine.world, createBounds());
 
-function getRandomVariance() {
-    return 1 + (Math.random() * progressionConfig.randomVariance * 2 - progressionConfig.randomVariance);
+    // Remove old toilet sensor and add new one
+    const oldToilet = Matter.Composite.allBodies(engine.world)
+        .find(body => body.label === 'toilet');
+    if (oldToilet) {
+        World.remove(engine.world, oldToilet);
+    }
+    World.add(engine.world, createToiletSensor());
+});
+
+// run the engine
+Engine.run(engine);
+
+// run the renderer
+Render.run(render);
+
+// create runner
+var runner = Runner.create();
+Runner.run(runner, engine);
+
+// function to spawn objects
+function spawnObject() {
+    var x = Math.random() * (window.innerWidth - 40) + 20; // Keep away from edges
+    var y = 0;
+    var size = Math.random() * 20 + 10;
+    var object = Bodies.circle(x, y, size, {
+        restitution: 0.3,
+        friction: 0.5,
+        frictionAir: 0.002,  // Add air friction
+        density: 0.001,
+        slop: 0,
+        inertia: Infinity,  // Prevent rotation-induced sliding
+        render: {
+            fillStyle: '#8B4513'  // Brown color
+        }
+    });
+    World.add(engine.world, object);
 }
 
-// Remove the velocity multiplier function and modification of physics properties
-function createEmoji() {
-    const emoji = '💩';  // Only use poop emoji
-    
-    // Calculate size with random variance
-    const size = currentBaseSize * getRandomVariance();
+// spawn objects at intervals
+setInterval(spawnObject, 3000);  // Changed from 1000 to 3000ms
 
-    // Calculate spawn position
-    const centerX = window.innerWidth / 2;
-    const spawnWidth = window.innerWidth / 4; // Use 1/4 of screen width for spawn area
-    const randomOffset = (Math.random() - 0.5) * spawnWidth;
-    const spawnX = centerX + randomOffset;
+// modify engine settings for better physics
+engine.world.gravity.y = 0.3;
+engine.world.gravity.x = 0;  // Ensure no horizontal gravity
+engine.world.gravity.scale = 0.001;
+engine.constraintIterations = 10;
+engine.positionIterations = 12;
+engine.velocityIterations = 12;
 
-    // Create DOM element
-    const element = document.createElement('div');
-    element.className = 'emoji';
-    element.style.fontSize = `${size}px`;
-    element.textContent = emoji;
-    document.body.appendChild(element);
+// Set global air friction
+engine.world.airFriction = 1;
 
-    // Create physics body
-    const body = Bodies.circle(
-        spawnX,
-        -50,
-        size / 2,
+// Add toilet sensor
+function createToiletSensor() {
+    const toiletSize = 200;
+    // Create the top sensor only
+    const topSensor = Bodies.rectangle(
+        window.innerWidth - (toiletSize / 1.5),
+        window.innerHeight - (toiletSize * 0.65),  // Changed from toiletSize to toiletSize * 0.85
+        toiletSize * 0.6,
+        20,
         {
-            restitution: 0.6,
-            friction: 0.2,
-            density: 0.001,
-            frictionAir: 0.001,
-            angularVelocity: (Math.random() - 0.5) * 0.1, // Add initial rotation
-            angle: Math.random() * Math.PI * 2 // Random starting angle
+            isSensor: true,
+            isStatic: true,
+            render: { visible: false },
+            label: 'toilet-sensor'
         }
     );
-
-    // Store element reference
-    body.element = element;
-    World.add(world, body);
+    return topSensor;
 }
 
-// Update DOM elements with rotation
-function updateElements() {
-    world.bodies.forEach(body => {
-        if (body.element) {
-            const pos = {
-                x: body.position.x,
-                y: body.position.y
-            };
+// Add toilet sensor to world
+World.add(engine.world, createToiletSensor());
 
-            // Check for toilet collision from top only
-            if (pos.x > toiletBounds.x && 
-                pos.x < toiletBounds.x + toiletBounds.width &&
-                pos.y > toiletBounds.y && 
-                pos.y < toiletBounds.y + toiletBounds.height &&
-                body.velocity.y > 0) { // Only collect when falling down
-                
-                // Remove emoji and update counter
-                body.element.remove();
-                World.remove(world, body);
-                collectedCount++;
-                counterElement.textContent = collectedCount;
-                
-                // Progress difficulty
-                currentSpawnRate = Math.max(
-                    progressionConfig.minSpawnRate,
-                    currentSpawnRate - progressionConfig.spawnRateReduction
-                );
-                currentBaseSize = Math.min(
-                    progressionConfig.maxSize,
-                    currentBaseSize + progressionConfig.sizeGrowth
-                );
-                
-                updateSpawnRate();
-                
-                // Change animation target from toilet to counter
-                counterElement.style.transform = 'scale(1.2) translateY(-10px)';
-                setTimeout(() => {
-                    counterElement.style.transform = 'none';
-                }, 200);
-            } else {
-                const angle = body.angle * (180 / Math.PI);
-                body.element.style.transform = `translate(${pos.x - body.element.offsetWidth/2}px, ${pos.y - body.element.offsetHeight/2}px) rotate(${angle}deg)`;
+// Counter variable
+let toiletCounter = 0;
+
+// Update counter with animation
+function updateCounter() {
+    const counter = document.getElementById('toilet-counter');
+    counter.textContent = toiletCounter;
+    counter.classList.remove('counter-bump');
+    void counter.offsetWidth; // Trigger reflow
+    counter.classList.add('counter-bump');
+}
+
+// Collision detection for toilet
+Matter.Events.on(engine, 'collisionStart', function(event) {
+    event.pairs.forEach((pair) => {
+        if (pair.bodyA.label === 'toilet-sensor' || pair.bodyB.label === 'toilet-sensor') {
+            const ball = pair.bodyA.label === 'toilet-sensor' ? pair.bodyB : pair.bodyA;
+            const sensor = pair.bodyA.label === 'toilet-sensor' ? pair.bodyA : pair.bodyB;
+            
+            // Check if ball is above sensor when collision occurs
+            if (ball.position.y < sensor.position.y) {
+                World.remove(engine.world, ball);
+                toiletCounter++;
+                updateCounter();
             }
         }
     });
-    requestAnimationFrame(updateElements);
-}
-
-// Dynamic spawn interval
-function updateSpawnRate() {
-    if (spawnInterval) clearInterval(spawnInterval);
-    const actualSpawnRate = Math.max(
-        progressionConfig.minSpawnRate,
-        currentSpawnRate * getRandomVariance()
-    );
-    spawnInterval = setInterval(createEmoji, actualSpawnRate);
-}
-
-// Initial spawn rate and update on slider change
-updateSpawnRate();
-
-// Start the engine and updates
-Engine.run(engine);
-updateElements();
-
-// Handle window resize
-window.addEventListener('resize', () => {
-    // Update wall positions
-    World.remove(world, walls);
-    walls[0].position.x = window.innerWidth / 2;
-    walls[1].position.x = -50;
-    walls[2].position.x = window.innerWidth + 50;
-    World.add(world, walls);
-
-    // Recalculate toilet bounds
-    toiletBounds.x = window.innerWidth - 220;
-    toiletBounds.y = window.innerHeight - 150; // Adjusted to match new position
-});
-
-// Add clear functionality
-clearButton.addEventListener('click', () => {
-    const bodies = world.bodies.filter(body => body.element);
-    bodies.forEach(body => {
-        if (body.element) {
-            body.element.remove();
-        }
-        World.remove(world, body);
-    });
-    collectedCount = 0;
-    counterElement.textContent = '0';
-    currentSpawnRate = progressionConfig.baseSpawnRate;
-    currentBaseSize = progressionConfig.baseSize;
-    updateSpawnRate();
 });
