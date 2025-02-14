@@ -34,13 +34,7 @@ body {
 }
 
 .spinning-text {
-    font-size: 5rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    position: relative;
-    transform-style: preserve-3d;
-    animation: spin 8s infinite linear, colorShift 4s infinite linear;
-    margin-bottom: 0;
+    display: none; /* Hide the old text animation */
 }
 
 .spinning-text::before,
@@ -189,6 +183,20 @@ body {
     to { box-shadow: 0 0 20px rgba(255, 255, 255, 0.8); }
 }
 
+#bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+.content-wrapper {
+    position: relative;
+    z-index: 1;
+}
+
 @media screen and (max-width: 768px) {
     .spinning-text {
         font-size: 2.5rem;
@@ -252,6 +260,11 @@ body {
     
     .join-button:hover {
         transform: translateX(50%) scale(1.1);
+    }
+
+    #bg {
+        height: 100vh;
+        height: calc(var(--vh, 1vh) * 100);
     }
 }
 

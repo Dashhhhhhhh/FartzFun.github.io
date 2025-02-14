@@ -5,36 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Fartz.fun</title>
     <link rel="stylesheet" href="./style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
-    <div class="hero">
-        <div class="text-container">
-            <div class="spinning-text">WELCOME TO FARTZ.FUN</div>
-        </div>
-    </div>
-    <a href="./join" class="join-button">Join Now</a>
-    <div class="fart-counter">
-        <div class="counter-text">GLOBAL FART STATISTICS</div>
-        <div class="stats-grid">
-            <div class="stat-box">
-                <div class="stat-label">TOTAL FARTS TODAY</div>
-                <div class="stat-value" id="totalFarts">0</div>
-                <div class="stat-unit">billion farts</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-label">CURRENT RATE</div>
-                <div class="stat-value" id="fartsPerSecond">0</div>
-                <div class="stat-unit">farts per second</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-label">CO₂ EQUIVALENT</div>
-                <div class="stat-value" id="co2Count">0</div>
-                <div class="stat-unit">tons</div>
+    <canvas id="bg"></canvas>
+    <div class="content-wrapper">
+        <div class="hero">
+            <div class="text-container">
+                <div class="spinning-text">WELCOME TO FARTZ.FUN</div>
             </div>
         </div>
+        <a href="./join" class="join-button">Join Now</a>
     </div>
-    <script src="./drag-handler.js"></script>
-    <script src="./fart-counter.js"></script>
+    <script src="./main.js"></script>
+    <script src="./scene.js"></script>
     <script src="./media/fart-sound.js"></script>
 </body>
 </html>

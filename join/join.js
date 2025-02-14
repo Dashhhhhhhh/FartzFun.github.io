@@ -7,6 +7,104 @@ var Engine = Matter.Engine,
     Mouse = Matter.Mouse,
     MouseConstraint = Matter.MouseConstraint;
 
+// Currency and upgrade system
+let poopCurrency = 0;
+let pointsPerPoop = 1;
+
+// Add at the top with other variables
+let fasterSpawnCost = 10;
+let extraPointsCost = 5;
+let cooldownCost = 15;
+let upgradesPurchased = {
+    fasterSpawn: 0,
+    extraPoints: 0,
+    cooldown: 0
+};
+
+// Add to top with other variables
+let hasAutoCannon = false;
+let autoCannonInterval = null;
+
+const BASE_CANNON_COOLDOWN = 5000; // Original cooldown time
+let CANNON_COOLDOWN = BASE_CANNON_COOLDOWN; // Current cooldown time
+
+// Add global function for upgrades
+window.buyUpgrade = function(type) {
+    switch (type) {
+        case 'fasterSpawn':
+            if (poopCurrency >= fasterSpawnCost) {
+                poopCurrency -= fasterSpawnCost;
+                clearInterval(spawnInterval);
+                spawnRate = Math.max(spawnRate - 500, 500);
+                spawnInterval = setInterval(spawnObject, spawnRate);
+                upgradesPurchased.fasterSpawn++;
+                fasterSpawnCost = Math.floor(10 * Math.pow(1.5, upgradesPurchased.fasterSpawn));
+            }
+            break;
+        case 'poopCannon':
+            if (poopCurrency >= 20 && !hasPoopCannon) {
+                poopCurrency -= 20;
+                hasPoopCannon = true;
+                createCannon();
+            }
+            break;
+        case 'extraPoints':
+            if (poopCurrency >= extraPointsCost) {
+                poopCurrency -= extraPointsCost;
+                pointsPerPoop++;
+                upgradesPurchased.extraPoints++;
+                extraPointsCost = Math.floor(5 * Math.pow(1.5, upgradesPurchased.extraPoints));
+            }
+            break;
+        case 'autoCannon':
+            if (poopCurrency >= 100 && !hasAutoCannon && hasPoopCannon) {
+                poopCurrency -= 100;
+                hasAutoCannon = true;
+                startAutoCannon();
+            }
+            break;
+        case 'cooldown':
+            if (poopCurrency >= cooldownCost && hasPoopCannon) {
+                poopCurrency -= cooldownCost;
+                upgradesPurchased.cooldown++;
+                // Reduce cooldown by 20% each time, with a minimum of 500ms
+                CANNON_COOLDOWN = Math.max(BASE_CANNON_COOLDOWN * Math.pow(0.8, upgradesPurchased.cooldown), 500);
+                cooldownCost = Math.floor(15 * Math.pow(1.5, upgradesPurchased.cooldown));
+                
+                // Update auto cannon if active
+                if (hasAutoCannon && autoCannonInterval) {
+                    clearInterval(autoCannonInterval);
+                    autoCannonInterval = setInterval(shootPoop, CANNON_COOLDOWN);
+                }
+            }
+            break;
+    }
+    updateCurrencyDisplay();
+}
+
+// Add auto-cannon functions
+function startAutoCannon() {
+    if (!autoCannonInterval) {
+        autoCannonInterval = setInterval(shootPoop, CANNON_COOLDOWN);
+    }
+}
+
+function updateCurrencyDisplay() {
+    document.getElementById('currency-amount').textContent = poopCurrency;
+    
+    // Update button visibility and costs
+    document.getElementById('fasterSpawn-btn').style.display = poopCurrency >= fasterSpawnCost ? 'block' : 'none';
+    document.getElementById('poopCannon-btn').style.display = (poopCurrency >= 20 && !hasPoopCannon) ? 'block' : 'none';
+    document.getElementById('extraPoints-btn').style.display = poopCurrency >= extraPointsCost ? 'block' : 'none';
+    document.getElementById('autoCannon-btn').style.display = (poopCurrency >= 100 && hasPoopCannon && !hasAutoCannon) ? 'block' : 'none';
+    document.getElementById('cooldown-btn').style.display = (poopCurrency >= cooldownCost && hasPoopCannon) ? 'block' : 'none';
+
+    // Update button text with current costs
+    document.getElementById('fasterSpawn-btn').textContent = `Faster Spawn (${fasterSpawnCost} 💩)`;
+    document.getElementById('extraPoints-btn').textContent = `Extra Points (${extraPointsCost} 💩)`;
+    document.getElementById('cooldown-btn').textContent = `Faster Cannon (${cooldownCost} 💩)`;
+}
+
 // create an engine
 var engine = Engine.create();
 
@@ -161,8 +259,8 @@ function spawnObject() {
     var size = Math.random() * 20 + 10;
     var object = Bodies.circle(x, y, size, {
         restitution: 0.3,
-        friction: 0.5,
-        frictionAir: 0.002,  // Add air friction
+        friction: 0.3,         // Reduced from 0.5
+        frictionAir: 0.001,    // Reduced from 0.002
         density: 0.001,
         slop: 0,
         inertia: Infinity,  // Prevent rotation-induced sliding
@@ -174,7 +272,9 @@ function spawnObject() {
 }
 
 // spawn objects at intervals
-setInterval(spawnObject, 3000);  // Changed from 1000 to 3000ms
+let spawnRate = 3000;
+let spawnInterval = setInterval(spawnObject, spawnRate);
+let hasPoopCannon = false;
 
 // modify engine settings for better physics
 engine.world.gravity.y = 0.3;
@@ -233,7 +333,122 @@ Matter.Events.on(engine, 'collisionStart', function(event) {
                 World.remove(engine.world, ball);
                 toiletCounter++;
                 updateCounter();
+                poopCurrency += pointsPerPoop;
+                updateCurrencyDisplay();
+            }
+        }
+        
+        // Add cannon collision detection
+        if (pair.bodyA.label === 'cannon-sensor' || pair.bodyB.label === 'cannon-sensor') {
+            const ball = pair.bodyA.label === 'cannon-sensor' ? pair.bodyB : pair.bodyA;
+            
+            // Get toilet position for trajectory
+            const toiletSensor = Matter.Composite.allBodies(engine.world)
+                .find(body => body.label === 'toilet-sensor');
+            
+            if (toiletSensor) {
+                const dx = toiletSensor.position.x - ball.position.x;
+                const dy = toiletSensor.position.y - ball.position.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // Calculate velocities based on distance
+                const baseSpeed = distance / 150;
+                const horizontalSpeed = (dx / distance) * baseSpeed;
+                const verticalSpeed = ((dy / distance) * baseSpeed) - 8;
+                
+                // Apply new velocity to existing ball
+                Matter.Body.setVelocity(ball, {
+                    x: horizontalSpeed,
+                    y: verticalSpeed
+                });
             }
         }
     });
+});
+
+// Initialize currency display when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    updateCurrencyDisplay();
+});
+
+let cannonCooldown = false;
+
+function shootPoop() {
+    if (cannonCooldown) return;
+    
+    cannonCooldown = true;
+    const cannon = document.getElementById('poop-cannon');
+    cannon.style.opacity = '0.5';
+    
+    setTimeout(() => {
+        cannonCooldown = false;
+        cannon.style.opacity = '1';
+    }, CANNON_COOLDOWN);
+
+    // Get toilet position from sensor
+    const toiletSensor = Matter.Composite.allBodies(engine.world)
+        .find(body => body.label === 'toilet-sensor');
+
+    const cannonPos = {
+        x: 170,
+        y: window.innerHeight - 40
+    };
+
+    // Calculate trajectory to toilet
+    const targetPos = {
+        x: toiletSensor.position.x,
+        y: toiletSensor.position.y
+    };
+
+    // Calculate distances
+    const dx = targetPos.x - cannonPos.x;
+    const dy = targetPos.y - cannonPos.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    // Calculate velocities based on distance
+    const baseSpeed = distance / 165; // Adjust speed based on distance
+    const horizontalSpeed = (dx / distance) * baseSpeed;
+    const verticalSpeed = ((dy / distance) * baseSpeed) - 8; // Add upward boost for arc
+
+    var poop = Bodies.circle(cannonPos.x, cannonPos.y - 100, 20, {
+        restitution: 0.3,
+        friction: 0.3,         // Reduced from 0.5
+        frictionAir: 0.001,    // Reduced from 0.002
+        density: 0.001,
+        render: {
+            fillStyle: '#8B4513'
+        }
+    });
+    
+    World.add(engine.world, poop);
+    
+    Matter.Body.setVelocity(poop, {
+        x: horizontalSpeed,
+        y: verticalSpeed
+    });
+}
+
+function createCannon() {
+    const cannon = document.createElement('div');
+    cannon.id = 'poop-cannon';
+    cannon.innerHTML = '<img src="./assets/trebuchet.png" alt="Trebuchet">';
+    document.body.appendChild(cannon);
+    
+    // Create invisible cannon sensor for collision detection
+    const cannonSensor = Bodies.rectangle(170, window.innerHeight - 120, 200, 200, {
+        isStatic: true,
+        isSensor: true,
+        render: { visible: false },
+        label: 'cannon-sensor'
+    });
+    
+    World.add(engine.world, cannonSensor);
+    cannon.addEventListener('click', shootPoop);
+}
+
+// Clean up interval when needed (add to window unload handler)
+window.addEventListener('unload', function() {
+    if (autoCannonInterval) {
+        clearInterval(autoCannonInterval);
+    }
 });
