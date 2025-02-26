@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fartz.fun</title>
+    <title>Fartz.fun | Interactive Fart Experience</title>
+    <meta name="description" content="Welcome to Fartz.fun - the internet's most interactive flatulence experience!">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Poppins:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
@@ -15,8 +19,52 @@
                 <div class="spinning-text">WELCOME TO FARTZ.FUN</div>
             </div>
         </div>
+        
         <a href="./join" class="join-button">Join Now</a>
+        
+        <div class="chat-container">
+            <div class="chat-header">
+                <h3>Fartz Chat</h3>
+                <button class="toggle-chat-btn">Toggle</button>
+            </div>
+            <iframe 
+                src="https://chitchatter.im/public/e2aef188-b985-4128-824d-4abd943dd89b?embed=1" 
+                allow="camera;microphone;display-capture;fullscreen" 
+                width="300" 
+                height="300">
+            </iframe>
+        </div>
+        
+        <div class="fart-counter">
+            <div class="counter-text">Global Fart Counter</div>
+            <div class="counter-number" id="fartCount">0</div>
+            <div class="fart-rate" id="fartRate">0 FPM (Farts Per Minute)</div>
+            
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <div class="stat-label">Total Gas Volume</div>
+                    <div class="stat-value" id="gasVolume">0</div>
+                    <div class="stat-unit">cubic cm</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Carbon Footprint</div>
+                    <div class="stat-value" id="carbonFootprint">0</div>
+                    <div class="stat-unit">kg CO₂</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Sound Level</div>
+                    <div class="stat-value" id="soundLevel">0</div>
+                    <div class="stat-unit">dB</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="fart-button-container">
+            <button id="fartButton">FART NOW</button>
+        </div>
     </div>
+    
+    <script src="./particles.js"></script>
     <script src="./main.js"></script>
     <script src="./scene.js"></script>
     <script src="./media/fart-sound.js"></script>
